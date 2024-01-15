@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/nguyenthenguyen/docx"
 	"github.com/xuri/excelize/v2"
@@ -11,14 +10,14 @@ import (
 
 type Person struct {
 	Name    string
-	Age     int
+	Age     string
 	Address string
 }
 
 func prepareInvitation(templateFile *docx.ReplaceDocx, person Person) error {
 	template := templateFile.Editable()
 	template.Replace(`.NAME_TEMPLATE`, person.Name, -1)
-	template.Replace(".AGE_TEMPLATE", strconv.Itoa(person.Age), -1)
+	template.Replace(".AGE_TEMPLATE", person.Age, -1)
 	template.Replace(".ADDRESS_TEMPLATE", person.Address, -1)
 	return template.WriteToFile(fmt.Sprintf("output/%s_invite.docx", person.Name))
 }
@@ -32,14 +31,9 @@ func readPersons(input *excelize.File) ([]Person, error) {
 	persons := make([]Person, len(rows))
 
 	for idx, row := range rows {
-		age, err := strconv.Atoi(row[1])
-		if err != nil {
-			log.Printf("failed to convert age cell to number: %s", err)
-		}
-
 		persons[idx] = Person{
 			Name:    row[0],
-			Age:     age,
+			Age:     row[1],
 			Address: row[2],
 		}
 	}
